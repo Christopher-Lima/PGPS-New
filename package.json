@@ -1,0 +1,29 @@
+{
+  "name": "pgps",
+  "version": "1.0.0",
+  "description": "projeto para a otimização do sistema de geolocalização dos radios do ciodes.",
+  "main": "index.js",
+  "scripts": {
+    "start:index": "node -r dotenv/config index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Christopher-Lima/PGPS.git"
+  },
+  "author": "c.h_lima",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Christopher-Lima/PGPS/issues"
+  },
+  "homepage": "https://github.com/Christopher-Lima/PGPS#readme",
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/websocket": "^10.0.1",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.27.0",
+    "qs": "^6.12.1",
+    "tsx": "^4.10.2"
+  }
+}
