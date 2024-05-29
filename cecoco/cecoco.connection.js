@@ -3,6 +3,7 @@ const { secProfile, loginAccount, dataProfile } = require('./cecoco.data');
 require('dotenv').config();
 
 axios.defaults.baseURL = 'http://10.155.106.141:80/gisviewer';
+axios.defaults.headers.common["User-Agent"] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36 Edg/91.0.864.59';
 
 // Header comum para reutilização
 const commonHeaders = {
@@ -10,12 +11,12 @@ const commonHeaders = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
 };
 
-// Obtendo os Cokies de Sessão
+// Obtendo os Cookies de Sessão
 async function getSessionCookies() {
     try {
         const response = await axios.get('/main/cecoco/');
-        axios.defaults.headers.common["Cookie"] = response.headers['set-cookie'].toString();
-        console.log("Sessão iniciada, cookies obtidos");
+        axios.defaults.headers.common["Cookie"] = response.headers['set-cookie'].join('; ');
+        console.log("Sessão iniciada, cookies obtidos:", axios.defaults.headers.common["Cookie"]);
     } catch (error) {
         console.error("Erro ao obter cookies de sessão:", error.message);
     }
@@ -27,20 +28,18 @@ async function login() {
 
     const requests = [
         {
-            url: 'j_security_check',
-            method: 'post',
-            data: secProfile,
-            headers: commonHeaders,
-            successMessage: 'Sucesso! Segurança checada.',
-            errorMessage: 'Erro! Falha ao checar segurança.'
-        },
-        {
             url: 'rest/login/profiles',
             method: 'post',
             data: dataProfile,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             successMessage: 'Sucesso! Login no perfil realizado.',
             errorMessage: 'Erro! Falha no login do perfil.'
+        },
+        {
+            url: `rest/login/organism/get/id/name/${process.env.SUBSCRIBER}/${process.env.USERNAME}/${process.env.PASSWORD}/${process.env.PROFILE}`,
+            method: 'get',
+            successMessage: 'Sucesso! Organismo obtido.',
+            errorMessage: 'Erro! Falha ao obter organismo.'
         },
         {
             url: 'login/cecoco/',
@@ -56,6 +55,51 @@ async function login() {
             headers: commonHeaders,
             successMessage: 'Sucesso! Conexão com a Cecoco confirmada.',
             errorMessage: 'Erro! Falha na confirmação da conexão com a Cecoco.'
+        },
+        {
+            url: 'j_security_check',
+            method: 'post',
+            data: secProfile,
+            headers: commonHeaders,
+            successMessage: 'Sucesso! Segurança checada.',
+            errorMessage: 'Erro! Falha ao checar segurança.'
+        },
+        {
+            url: '/main/cecoco/',
+            method: 'get',
+            headers: commonHeaders,
+            successMessage: 'Sucesso! Conexão com a Cecoco confirmada.',
+            errorMessage: 'Erro! Falha na confirmação da conexão com a Cecoco.'
+        },
+        {
+            url: `rest/admin/servicetypes/${process.env.SUBSCRIBER}/${process.env.PROFILE}/${process.env.USERNAME}?rand=${Math.random()}`,
+            method: 'get',
+            successMessage: 'Sucesso! Tipos de serviço obtidos.',
+            errorMessage: 'Erro! Falha ao obter tipos de serviço.'
+        },
+        {
+            url: `rest/admin/resourcegroups/${process.env.SUBSCRIBER}/${process.env.PROFILE}?rand=${Math.random()}`,
+            method: 'get',
+            successMessage: 'Sucesso! Grupos de recursos obtidos.',
+            errorMessage: 'Erro! Falha ao obter grupos de recursos.'
+        },
+        {
+            url: `rest/admin/resourcetypes/${process.env.SUBSCRIBER}/${process.env.PROFILE}?rand=${Math.random()}`,
+            method: 'get',
+            successMessage: 'Sucesso! Tipos de recursos obtidos.',
+            errorMessage: 'Erro! Falha ao obter tipos de recursos.'
+        },
+        {
+            url: `rest/admin/organisms/${process.env.SUBSCRIBER}/0?rand=${Math.random()}`,
+            method: 'get',
+            successMessage: 'Sucesso! Organismos obtidos.',
+            errorMessage: 'Erro! Falha ao obter organismos.'
+        },
+        {
+            url: `rest/admin/ips/${process.env.SUBSCRIBER}?rand=${Math.random()}`,
+            method: 'get',
+            successMessage: 'Sucesso! IPs obtidos.',
+            errorMessage: 'Erro! Falha ao obter IPs.'
         }
     ];
 
@@ -68,7 +112,7 @@ async function login() {
                 headers: request.headers
             });
             if (response.status === 200) {
-                console.log(request.successMessage);
+                console.log(request.successMessage, response.status);
             } else {
                 console.log(`${request.errorMessage}:`, response.status, response.statusText);
             }
@@ -78,25 +122,4 @@ async function login() {
     }
 }
 
-async function getLocationData() {
-    login();
-
-    try {
-        const response = await axios.get(`/gisviewer/rest/resourceposition/10000/admin/geojson`);
-        if (response.status === 200) {
-            console.log('Sucesso! Dados de localização obtidos.');
-            console.log(response.data);
-            return response.data;
-        } else {
-            console.log(`Erro ao obter dados de localização: ${response.status} ${response.statusText}`);
-            return null;
-        }
-    } catch (error) {
-        console.error(`Erro ao obter dados de localização:`, error.message);
-        return null;
-    }
-}
-
-
-getLocationData();
-module.exports = { login, getLocationData };
+module.exports = { login };
