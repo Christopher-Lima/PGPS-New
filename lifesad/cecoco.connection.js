@@ -1,35 +1,17 @@
-const axios = require('axios');
-const { secProfile, loginAccount, dataProfile } = require('./cecoco.data');
-const { getGPS } = require('./cecoco.gps');
-require('dotenv').config();
+const axios = require("axios");
+const { atualizaGPS } = require('./cecoco.gps');
+const qs = require('qs');
 
 const subscriber = '10000'; // All subscribers
 const username = 'administrador'; // Admin user
 const password = 'teltronic'; // Admin password
 const profile = 'admin'; // Admin profile
 
-axios.defaults.baseURL = 'http://10.155.106.141:80/gisviewer';
+axios.defaults.baseURL = 'http://10.155.106.141:80';
 axios.defaults.headers.common["User-Agent"] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36 Edg/91.0.864.59';
 
-// Header comum para reutilização
-const commonHeaders = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
-};
-
-// Obtendo os Cookies de Sessão
-async function getSessionCookies() {
-    try {
-        const response = await axios.get('/main/cecoco/');
-        axios.defaults.headers.common["Cookie"] = response.headers['set-cookie'].join('; ');
-        console.log("Sessão iniciada, cookies obtidos:", axios.defaults.headers.common["Cookie"]);
-    } catch (error) {
-        console.error("Erro ao obter cookies de sessão:", error.message);
-    }
-}
-
-// Login na Cecoco
-async function login() {
+// Axios requests to perform login steps
+async function performLoginSteps() {
     try {
         await passo0();
         await passo1();
@@ -43,7 +25,7 @@ async function login() {
         await passo9();
         await passo10();
         await passo11();
-        getGPS();
+        atualizaGPS();
     } catch (error) {
         console.error("Error during login steps:", error);
     }
@@ -191,4 +173,4 @@ async function passo11() {
     }
 }
 
-login();
+performLoginSteps();

@@ -2,10 +2,9 @@ const fastify = require('fastify')({ logger: true });
 const fs = require('fs');
 const axios = require("axios");
 const qs = require('qs');
-const websocket = require('@fastify/websocket');
 
 let socketCliente = 0;
-const DelayGPS = 10000; // Time interval for new GPS updates in milliseconds
+const DelayGPS = 5000; // Time interval for new GPS updates in milliseconds
 
 const subscriber = '10000'; // All subscribers
 const username = 'administrador'; // Admin user
@@ -14,48 +13,6 @@ const profile = 'admin'; // Admin profile
 
 axios.defaults.baseURL = 'http://10.155.106.141:80';
 axios.defaults.headers.common["User-Agent"] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36 Edg/91.0.864.59';
-
-// Register the websocket plugin
-fastify.register(websocket);
-
-// Setup routes
-fastify.get('/', async (request, reply) => {
-    reply.type('text/html').send('<h1>Hello! Try the <a href="/test.html">Test page</a></h1>');
-});
-
-fastify.get('/test.html', async (request, reply) => {
-    try {
-        const data = fs.readFileSync(__dirname + '/test.html', 'utf8');
-        reply.type('text/html').send(data);
-    } catch (err) {
-        reply.code(404).send('404');
-    }
-});
-
-fastify.get('/ws', { websocket: true }, (connection, req) => {
-    socketCliente = connection.socket;
-
-    connection.socket.on('message', message => {
-        const data = JSON.parse(message);
-        console.log("Client data received:", data.id);
-        process.stdout.write(data.letter);
-    });
-});
-
-const start = async () => {
-    try {
-        await fastify.listen(8060);
-        console.log('Server listening on http://localhost:8060');
-    } catch (err) {
-        fastify.log.error(err);
-        process.exit(1);
-    }
-};
-
-start();
-
-// Function to encode form data
-const formUrlEncoded = (x) => Object.keys(x).reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, '');
 
 // Axios requests to perform login steps
 async function performLoginSteps() {
@@ -71,7 +28,6 @@ async function performLoginSteps() {
         await passo8();
         await passo9();
         await passo10();
-        await passo11();
         atualizaGPS();
     } catch (error) {
         console.error("Error during login steps:", error);
@@ -260,9 +216,8 @@ function handleGPSData(data) {
             resourcename: resourcename.substring(resourcename.indexOf("96"), resourcename.indexOf("96") + 7),
             coordinates: coordinates
         };
-        if (socketCliente) {
-            socketCliente.send(JSON.stringify(message));
-        }
+        
+        console.log(typeof(message));
         console.log('GPS Data:', message);
     });
 }
