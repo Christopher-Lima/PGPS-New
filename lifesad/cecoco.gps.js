@@ -1,4 +1,5 @@
 const axios = require("axios");
+const featuresobjetct = require("./dados.json");
 const DelayGPS = 10000;
 
 const subscriber = '10000'; // All subscribers
@@ -20,8 +21,8 @@ async function getGPS() {
             headers: { 'Accept': 'application/json, text/javascript, */*; q=0.01' }
         });
         console.log("AQUIIIIIIIIII");
-        console.log("GPS data:", response.data);
-        handleGPSData(response.data);
+        console.log("GPS data:", featuresobjetct);
+        handleGPSData(featuresobjetct);
     } catch (error) {
         console.error("Error getting GPS data:", error);
     }
@@ -52,4 +53,5 @@ function handleGPSData(data) {
     });
 }
 
+atualizaGPS();
 module.exports = { atualizaGPS };
