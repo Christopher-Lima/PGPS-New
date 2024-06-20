@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "projeto para a otimização do sistema de geolocalização dos radios do ciodes.",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start:index": "node -r dotenv/config index"
   },
